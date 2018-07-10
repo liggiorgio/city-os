@@ -1,6 +1,6 @@
 # CityOS - Edge computing solution for smart cities
 
-This school projects develops a P2P network of edge nodes which collect measurements from simulated PM-10 sensors deployed in a grid representing the city, and compute local averages and sending them to a coordinator node; then it computes global averages and sends them back to other nodes, and upload all data to a RESTful web server. There's also a client app that queries the server to read the data uploaded.
+This university project develops a P2P network of edge nodes which collect measurements from simulated PM-10 sensors deployed in a grid representing the city, and compute local averages and sending them to a coordinator node; then it computes global averages and sends them back to other nodes, and upload all data to a RESTful web server. There's also a client app that queries the server to read the data uploaded.
 
 ## Artifacts
 
@@ -79,9 +79,9 @@ All data values returned by the following services are intended to be in JSON fo
 
 - `api/init`
 
-  **Description**: get the protocol token
-  **Method**: GET
-  **Parameters**: none
+  **Description**: get the protocol token  
+  **Method**: GET  
+  **Parameters**: none  
   **Returns**: *long* (plain text)
 
   | Status code | Description                 |
@@ -92,9 +92,9 @@ All data values returned by the following services are intended to be in JSON fo
 
 - `api/nodes`
 
-  **Description**: returns a list of edge nodes currently connected to the network
-  **Method**: GET
-  **Parameters**: none
+  **Description**: returns a list of edge nodes currently connected to the network  
+  **Method**: GET  
+  **Parameters**: none  
   **Returns**: *EdgeNode[]*
 
   | Status code | Description                              |
@@ -102,9 +102,9 @@ All data values returned by the following services are intended to be in JSON fo
   | 200         | List returned correctly                  |
   | 404         | There are no nodes connected to the network |
 
-  **Description**: add a node to the network
-  **Method**: POST
-  **Parameters**: *EdgeNode*
+  **Description**: add a node to the network  
+  **Method**: POST  
+  **Parameters**: *EdgeNode*  
   **Returns**: *EdgeNode[]* containing information for the current connecting node
 
   | Status code | Description                              |
@@ -114,9 +114,9 @@ All data values returned by the following services are intended to be in JSON fo
   | 403         | Current node would be too close to another one in the network |
   | 409         | The ID of the current node is already taken |
 
-  **Description**: remove a node from the network
-  **Method**: DELETE
-  **Parameters**: *EdgeNode*
+  **Description**: remove a node from the network  
+  **Method**: DELETE  
+  **Parameters**: *EdgeNode*  
   **Returns**: no content
 
   | Status code | Description                         |
@@ -126,9 +126,9 @@ All data values returned by the following services are intended to be in JSON fo
 
 - `api/node/nearest`
 
-  **Description**: get the closest node to a grid cell
-  **Method**: GET
-  **Parameters**: *int* u, *int* v, horizontal and vertical coordinates in the grid respectively
+  **Description**: get the closest node to a grid cell  
+  **Method**: GET  
+  **Parameters**: *int* u, *int* v, horizontal and vertical coordinates in the grid respectively  
   **Returns**: *EdgeNode*
 
   | Status code | Description                              |
@@ -141,9 +141,9 @@ All data values returned by the following services are intended to be in JSON fo
 
 - `api/measurements`
 
-  **Description**: get latest *n* aggregates
-  **Method**: GET
-  **Parameters**: *int* n, number of desired aggregate values
+  **Description**: get latest *n* aggregates  
+  **Method**: GET  
+  **Parameters**: *int* n, number of desired aggregate values  
   **Returns**: *Aggregate[]*, or no content
 
   | Status code | Description                              |
@@ -152,9 +152,9 @@ All data values returned by the following services are intended to be in JSON fo
   | 204         | There are no values yet                  |
   | 400         | Parameter missing or out of bounds       |
 
-  **Description**: upload a new aggregate value
-  **Method**: POST
-  **Parameters**: *Aggregate*
+  **Description**: upload a new aggregate value  
+  **Method**: POST  
+  **Parameters**: *Aggregate*  
   **Returns**: no content
 
   | Status code | Description                 |
@@ -163,9 +163,9 @@ All data values returned by the following services are intended to be in JSON fo
 
 - `api/measurements/{id}`
 
-  **Description**: get latest *n* local averages computed by a given node in the network
-  **Method**: GET
-  **Parameters**: *int* id, *int* n, process ID and number of desired values
+  **Description**: get latest *n* local averages computed by a given node in the network  
+  **Method**: GET  
+  **Parameters**: *int* id, *int* n, process ID and number of desired values  
   **Returns**: *Average[]*, or no content
 
   | Status code | Description                         |
@@ -177,9 +177,9 @@ All data values returned by the following services are intended to be in JSON fo
 
 - `api/measurements/stats`
 
-  **Description**: get mean value and standard deviation of latest *n* global averages
-  **Method**: GET
-  **Parameters**: *int* n, number of desider values
+  **Description**: get mean value and standard deviation of latest *n* global averages  
+  **Method**: GET  
+  **Parameters**: *int* n, number of desider values  
   **Returns**: *Statistic*, or no content
 
   | Status code | Description                              |
@@ -190,9 +190,9 @@ All data values returned by the following services are intended to be in JSON fo
 
 - `api/measurements/stats/{id}`
 
-  **Description**: get mean value and standard deviation of latest *n* local averages computed by a given node in the network
-  **Method**: GET
-  **Parameters**: *int* id, *int* n, process ID and number of desired values*
+  **Description**: get mean value and standard deviation of latest *n* local averages computed by a given node in the network  
+  **Method**: GET  
+  **Parameters**: *int* id, *int* n, process ID and number of desired values  
   **Returns**: *Statistic*, or no content
 
   | Status code | Description                              |
@@ -237,34 +237,34 @@ The election algorithm implements the Bully algorithm, which can be executed any
 
 There are some particular stress situations the developed network is able to deal with.
 
-#### Two nodes join concurrently
+### Two nodes join concurrently
 
 On the server side, we have concurrency management via critical sections; on the network side, edge nodes are able to hello-reply when still hello-requesting.
 
-#### A node joins when another one is leaving
+### A node joins when another one is leaving
 
 The Hello protocol detects offline nodes at startup, allowing the requesting node to have an up-to-date list of other nodes in the network.
 
-#### A node joins during an election
+### A node joins during an election
 
 When first joining the network, a node can only accept hello requests, hello replies, and a hello reply from the coordinator; all other messages are discarded. If an election is occuring, the new node will join the network without any knowledge of a coordinator, and finally requesting a new election shortly after. It is allowed to do so, as when joining the network there was no actual coordinator, thus the election constraint isn't violated.
 
-#### A node leaves during an election
+### A node leaves during an election
 
 The Bully election algorithm is tolerant to failures of nodes even if an election is taking place. If the leaving node was supposed to be the new coordinator, all other nodes will request a new election after a timeout is over and no coordinator message was received; otherwise, the occurring election will be over but the message sent to the leaving node won't simply be delivered.
 
-#### Measurements sent to an offline node
+### Measurements sent to an offline node
 
 Sensor measurements are supposed to be a data stream, and some measurements can be lost during the time spent by a sensor for requesting a new node address to the web server. As well, if sensors are online but there are no edge nodes connected, all measurements will be lost.
 
-#### Averages sent to an offline coordinator
+### Averages sent to an offline coordinator
 
 An acknowledgement system takes care of which averages are successfully delivered to the coordinator by any node. When sending local averages to the coordinator, these are stored in a temporary data stack instead of being discarded; anytime the coordinator receives a local average from a node, it replies back with the latest global average computed, plus the ID of the latest local average received. A node receiving the reply from the coordinator can then safely remove the corresponding entry from its own stack, assuming it was received. Otherwise, after a coordinator has been elected, all averages stored in the stack are sent to the new coordinator, ACK-ing them as well.
 
-#### The coordinator leaves before a global average is computed
+### The coordinator leaves before a global average is computed
 
 A global average is computed every five seconds. If a coordinator leaves the network during this time interval, a global average is computed on the fly and sent to the server, discarding other incoming packets from other nodes, so no values are discarded by mistake.
 
-#### The cloud server is offline
+### The cloud server is offline
 
 The cloud server isn't supposed to be offline at the moment, so the coordinator isn't able to delay the upload task. This edge case will be taken care of in a future commit.
